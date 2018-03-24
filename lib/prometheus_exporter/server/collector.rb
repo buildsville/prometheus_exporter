@@ -26,6 +26,7 @@ module PrometheusExporter::Server
       @mutex = Mutex.new
       @collectors = {}
       @json_serializer = PrometheusExporter.detect_json_serializer(json_serializer)
+      register_collector(FdCollector.new)
       register_collector(WebCollector.new)
       register_collector(ProcessCollector.new)
       register_collector(SidekiqCollector.new)
