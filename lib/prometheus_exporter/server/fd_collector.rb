@@ -28,7 +28,7 @@ module PrometheusExporter::Server
           "Total HTTP requests from web app."
         )
 
-        @metrics["http_duration_seconds"] = @http_duration_seconds = PrometheusExporter::Metric::FdSummary.new(
+        @metrics["http_duration_seconds"] = @http_duration_seconds = PrometheusExporter::Metric::FdMetric.new(
           "http_duration_seconds",
           "Time spent in HTTP reqs in seconds."
         )
