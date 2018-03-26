@@ -22,11 +22,11 @@ module PrometheusExporter::Server
     protected
 
     def ensure_metrics
-      unless @http_requests
-        @metrics["http_requests"] = @http_requests = PrometheusExporter::Metric::Counter.new(
-          "http_requests_total",
-          "Total HTTP requests from web app."
-        )
+      unless @http_duration_seconds
+        #@metrics["http_requests"] = @http_requests = PrometheusExporter::Metric::Counter.new(
+        #  "http_requests_total",
+        #  "Total HTTP requests from web app."
+        #)
 
         @metrics["http_duration_seconds"] = @http_duration_seconds = PrometheusExporter::Metric::FdMetric.new(
           "http_duration_seconds",
@@ -40,10 +40,13 @@ module PrometheusExporter::Server
       labels = {
         controller: obj["controller"] || "other",
         action: obj["action"] || "other",
-        site_id: obj["site_id"] || "-"
+        site_id: obj["site_id"] || "-",
+        status: obj["status"] || "other"
       }
 
-      @http_requests.observe(1, labels.merge(status: obj["status"]))
+      #fd_metricsのlabelにstatusを付けてtotalのmetricsでcounterを兼ねてみる
+      #組み合わせ爆発するようであればstatusを剥がしてcounterを復活させる（もしくはstatusを諦める）
+      #@http_requests.observe(1, labels.merge(status: obj["status"]))
 
       if timings = obj["timings"]
         @http_duration_seconds.observe(timings["total_duration"], labels)
