@@ -3,13 +3,13 @@
 require 'prometheus_exporter/instrumentation/method_profiler'
 require 'prometheus_exporter/client'
 
-class PrometheusExporter::FdMiddleware
+class PrometheusExporter::CustomLabelMiddleware
   MethodProfiler = PrometheusExporter::Instrumentation::MethodProfiler
 
-  def initialize(app, config = { client: nil, site_id: nil })
+  def initialize(app, config = { client: nil, custom_label: {} })
     @app = app
     @client = config[:client] || PrometheusExporter::Client.default
-    @site_id = config[:site_id] || -> (env){ '-' }
+    @custom_label = config[:custom_label]
   end
 
   def call(env)
@@ -22,23 +22,17 @@ class PrometheusExporter::FdMiddleware
     result
   ensure
     status = (result && result[0]) || -1
-    params = env["action_dispatch.request.parameters"]
-    action, controller, site_id = nil
-    if params
-      action = params["action"]
-      controller = params["controller"]
-    end
-    site_id = @site_id.call(env)
 
-    @client.send_json(
-      type: "fd",
+    opt = {
+      type: "custom",
       timings: info,
       queue_time: queue_time,
-      action: action,
-      controller: controller,
-      status: status,
-      site_id: site_id
-    )
+      status: status
+    }
+    @custom_label.each do |k,v|
+      opt[k] = v.call(env)
+    end
+    @client.send_json(opt)
   end
 
   private
