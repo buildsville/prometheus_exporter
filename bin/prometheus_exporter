@@ -27,6 +27,9 @@ def run
     opt.on('-a', '--type-collector FILE', String, "(optional) Custom type collectors to run in main collector") do |o|
       custom_type_collectors_filenames << o
     end
+    opt.on('-l', '--label foo,bar', Array, "(optional) Custom label to custom collector") do |o|
+      $customlabel = o
+    end
     opt.on('-v', '--verbose') do |o|
       options[:verbose] = true
     end

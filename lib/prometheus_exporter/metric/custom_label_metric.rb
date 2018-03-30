@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PrometheusExporter::Metric
-  class FdMetric < Base
+  class CustomLabelMetric < Base
     attr_reader :data
 
     def initialize(name, help)
@@ -10,7 +10,7 @@ module PrometheusExporter::Metric
     end
 
     def type
-      "fd_metric"
+      "custom_label_metric"
     end
 
     def metric_text
